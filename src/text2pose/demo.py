@@ -45,20 +45,16 @@ def process_img(img):
 device = 'cpu'
 
 
-@st.cache_resource
-def setup_models(model_paths, checkpoint, _load_model_func):
+
+def setup_models( checkpoint, _load_model_func):
     
     # load models
     models = []
     tokenizer_names = []
-    for i, mp in enumerate(model_paths):
-        if ".pth" not in mp:
-            mp = mp + f"/checkpoint_{checkpoint}.pth"
-            print(f"Checkpoint not specified (model {i}). Using {checkpoint} checkpoint.")
-
-        m, ten = _load_model_func(mp, device)
-        models.append(m)
-        tokenizer_names.append(ten)
+   
+    m, ten = _load_model_func('posescript/src/text2pose/generative_caption/capgen_CAtransfPSA2H2_dataPSA2ftPSH2/seed1/checkpoint_best.pth', device)
+    models.append(m)
+    tokenizer_names.append(ten)
 
     # setup body model
     body_model = setup_body_model()
