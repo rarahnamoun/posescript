@@ -26,35 +26,43 @@ os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 CONTROL_MEASURES = ["GT", "random", "auto_posescript-A2_cap1"]
 OVERWRITE_RESULT = False
+def some_function():
+    print("Current Working Directory:", os.getcwd())
+
 
 
 ################################################################################
-
 def load_model(model_path, device):
-	assert os.path.isfile(model_path), "File {} not found.".format(model_path)
-	
-	# load checkpoint & model info
-	ckpt = torch.load(model_path, 'cpu')
-	text_decoder_name = ckpt['args'].text_decoder_name
-	transformer_mode = ckpt['args'].transformer_mode
-	encoder_latentD = ckpt['args'].latentD
-	decoder_latentD = ckpt['args'].decoder_latentD
-	decoder_nlayers = ckpt['args'].decoder_nlayers
-	decoder_nhead = ckpt['args'].decoder_nhead
+    model_path='posescript/src/text2pose/generative_caption/capgen_CAtransfPSA2H2_dataPSA2ftPSH2/seed1/checkpoint_best.pth'
+    print("Current Working Directory:", os.getcwd())
+    assert os.path.isfile(model_path), "File {} not found.".format(model_path)
+    
+    
 
-	# load model
-	model = DescriptionGenerator(text_decoder_name=text_decoder_name,
-								transformer_mode=transformer_mode,
-								decoder_nlayers=decoder_nlayers,
-								decoder_nhead=decoder_nhead,
-								encoder_latentD=encoder_latentD,
-								decoder_latentD=decoder_latentD).to(device)
-	model.load_state_dict(ckpt['model'])
-	model.eval()
-	print(f"Loaded model from (epoch {ckpt['epoch']}):", model_path)
+    # load checkpoint & model info
+    ckpt = torch.load(model_path, map_location='cpu')  # Use map_location for proper device loading
+    text_decoder_name = ckpt['args'].text_decoder_name
+    transformer_mode = ckpt['args'].transformer_mode
+    encoder_latentD = ckpt['args'].latentD
+    decoder_latentD = ckpt['args'].decoder_latentD
+    decoder_nlayers = ckpt['args'].decoder_nlayers
+    decoder_nhead = ckpt['args'].decoder_nhead
 
-	return model, get_tokenizer_name(text_decoder_name)
+    # load model
+    model = DescriptionGenerator(
+        text_decoder_name=text_decoder_name,
+        transformer_mode=transformer_mode,
+        decoder_nlayers=decoder_nlayers,
+        decoder_nhead=decoder_nhead,
+        encoder_latentD=encoder_latentD,
+        decoder_latentD=decoder_latentD
+    ).to(device)
 
+    model.load_state_dict(ckpt['model'])
+    model.eval()
+    print(f"Loaded model from (epoch {ckpt['epoch']}):", model_path)
+
+    return model, get_tokenizer_name(text_decoder_name)
 
 def eval_model(model_path, dataset_version, pose_model_version=None, fid_version=None, textret_model_version=None, split='val'):
 	""""
